@@ -1,0 +1,664 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Daily Sync Up Board</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --bg:#F1F1EC;
+    --surface:#FFFFFF;
+    --column-bg:#F7F7F2;
+    --border:#DEDDD1;
+    --text:#1E201B;
+    --text-muted:#63665A;
+    --accent:#2D4F6B;
+    --accent-soft:#E4EAEF;
+    --danger:#A8402B;
+    --danger-soft:#F7E6E0;
+    --warn:#8F6A18;
+    --warn-soft:#F3EAD2;
+    --info:#3A6E8F;
+    --info-soft:#E3EDF2;
+    --shadow: 0 1px 2px rgba(20,22,16,0.05), 0 6px 16px -10px rgba(20,22,16,0.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15170F;
+      --surface:#1C1E17;
+      --column-bg:#1A1C15;
+      --border:#33362A;
+      --text:#EDEBE0;
+      --text-muted:#9A9C8C;
+      --accent:#8FB4CF;
+      --accent-soft:#1F303C;
+      --danger:#E28468;
+      --danger-soft:#3A241B;
+      --warn:#E0B95C;
+      --warn-soft:#332911;
+      --info:#7FB0DA;
+      --info-soft:#1B2A38;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 22px -14px rgba(0,0,0,0.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15170F;
+    --surface:#1C1E17;
+    --column-bg:#1A1C15;
+    --border:#33362A;
+    --text:#EDEBE0;
+    --text-muted:#9A9C8C;
+    --accent:#8FB4CF;
+    --accent-soft:#1F303C;
+    --danger:#E28468;
+    --danger-soft:#3A241B;
+    --warn:#E0B95C;
+    --warn-soft:#332911;
+    --info:#7FB0DA;
+    --info-soft:#1B2A38;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 22px -14px rgba(0,0,0,0.55);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    padding-inline:16px;
+    padding-block:14px 28px;
+  }
+  h1,h2{ font-family:'Fraunces', Georgia, serif; margin:0; text-wrap:balance; }
+
+  .wrap{ max-width:1280px; margin:0 auto; }
+
+  header.top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    padding-bottom:14px;
+    border-bottom:2px solid var(--text);
+    margin-bottom:16px;
+  }
+  header.top h1{ font-size:1.6rem; font-weight:700; letter-spacing:-0.01em; }
+  .subtitle{ margin:4px 0 0; color:var(--text-muted); font-size:0.85rem; }
+  .meta-right{ text-align:right; font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:var(--text-muted); }
+  .meta-right .refreshed{ color:var(--accent); font-weight:600; }
+
+  /* Critical strip */
+  .critical{
+    background:var(--surface);
+    border:1px solid var(--danger);
+    border-left:5px solid var(--danger);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    padding:12px 16px;
+    margin-bottom:16px;
+  }
+  .critical h2{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--danger);
+    margin-bottom:8px;
+  }
+  .critical-list{ display:flex; flex-direction:column; gap:8px; }
+  .critical-row{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+    flex-wrap:wrap;
+    font-size:0.86rem;
+    line-height:1.4;
+  }
+  .critical-row .client-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    color:var(--danger);
+    background:var(--danger-soft);
+    padding:2px 7px;
+    border-radius:5px;
+    white-space:nowrap;
+  }
+  .critical-row .ctext{ color:var(--text); }
+  .critical-row .ctext b{ font-weight:600; }
+  .critical-row .cask{ color:var(--text-muted); font-size:0.82rem; }
+
+  /* View toolbar */
+  .toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .switcher{
+    display:inline-flex;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:3px;
+    gap:3px;
+  }
+  .switcher button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.8rem;
+    font-weight:600;
+    border:none;
+    background:transparent;
+    color:var(--text-muted);
+    padding:6px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .switcher button.active{
+    background:var(--accent);
+    color:var(--surface);
+  }
+  .switcher button:hover:not(.active){ color:var(--text); }
+
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; }
+  #copyStatus{ font-size:0.75rem; color:var(--accent); font-weight:600; min-width:56px; }
+  .copy-btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.8rem;
+    font-weight:600;
+    border:1px solid var(--accent);
+    background:var(--accent);
+    color:var(--surface);
+    padding:7px 14px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .copy-btn:hover{ opacity:0.92; }
+  .copy-btn:focus-visible, .switcher button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  [hidden]{ display:none !important; }
+
+  /* Board */
+  .board{
+    display:flex;
+    gap:14px;
+    overflow-x:auto;
+    padding-bottom:10px;
+    scroll-snap-type:x proximity;
+  }
+  .column{
+    flex:0 0 268px;
+    scroll-snap-align:start;
+    background:var(--column-bg);
+    border:1px solid var(--border);
+    border-radius:12px;
+    display:flex;
+    flex-direction:column;
+    max-height:calc(100vh - 260px);
+    min-height:160px;
+  }
+  .column-head{
+    position:sticky;
+    top:0;
+    padding:10px 12px;
+    border-bottom:1px solid var(--border);
+    background:var(--column-bg);
+    border-radius:12px 12px 0 0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+  }
+  .column-head h3{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.86rem;
+    font-weight:700;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+  }
+  .column-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--text-muted);
+    background:var(--surface);
+    border:1px solid var(--border);
+    padding:1px 7px;
+    border-radius:999px;
+  }
+  .column-body{
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    overflow-y:auto;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:4px solid var(--border);
+    border-radius:9px;
+    padding:10px 11px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .card.high{ border-left-color:var(--danger); }
+  .card.wait{ border-left-color:var(--warn); }
+  .card.wip{ border-left-color:var(--info); }
+
+  .card-top{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .pill{
+    font-size:0.63rem;
+    font-weight:700;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:2px 6px;
+    border-radius:5px;
+    white-space:nowrap;
+  }
+  .pill.high{ background:var(--danger-soft); color:var(--danger); }
+  .pill.wait{ background:var(--warn-soft); color:var(--warn); }
+  .pill.wip{ background:var(--info-soft); color:var(--info); }
+  .due-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    color:var(--text-muted);
+  }
+  .card-task{ font-size:0.85rem; font-weight:600; line-height:1.32; }
+  .card-comment{ font-size:0.78rem; color:var(--text-muted); line-height:1.4; }
+  .card-comment.empty{ font-style:italic; }
+  .card-foot{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:2px; }
+  .owner-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:0.72rem;
+    color:var(--text);
+  }
+  .avatar{
+    width:18px; height:18px;
+    border-radius:50%;
+    background:var(--accent-soft);
+    color:var(--accent);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.6rem;
+    font-weight:700;
+    font-family:'IBM Plex Mono', monospace;
+    flex-shrink:0;
+  }
+  .stale{ font-size:0.66rem; color:var(--warn); font-family:'IBM Plex Mono', monospace; }
+
+  /* Table view */
+  .table-scroll{
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:var(--surface);
+    box-shadow:var(--shadow);
+  }
+  table.agenda{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.82rem;
+  }
+  table.agenda th, table.agenda td{
+    text-align:left;
+    padding:8px 10px;
+    border-bottom:1px solid var(--border);
+    vertical-align:top;
+  }
+  table.agenda th{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--text-muted);
+    background:var(--column-bg);
+    position:sticky;
+    top:0;
+  }
+  table.agenda tbody tr:last-child td{ border-bottom:none; }
+  table.agenda tbody tr:hover{ background:var(--column-bg); }
+  td.col-priority .pill{ display:inline-block; }
+  td.col-client{ font-weight:600; white-space:nowrap; }
+  td.col-task{ font-weight:600; }
+  td.col-due{ font-family:'IBM Plex Mono', monospace; font-size:0.76rem; color:var(--text-muted); white-space:nowrap; }
+  td.col-update{ color:var(--text-muted); }
+  td.col-owner{ white-space:nowrap; }
+
+  footer.note{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:0.72rem;
+    margin-top:18px;
+  }
+
+  @media (max-width:480px){
+    .column{ flex-basis:78vw; }
+    header.top{ flex-direction:column; align-items:flex-start; }
+    .meta-right{ text-align:left; }
+    table.agenda{ font-size:0.76rem; }
+    table.agenda th, table.agenda td{ padding:6px 7px; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Daily Sync Up Board</h1>
+      <p class="subtitle">Daily Sync Up &middot; today Mon, Sep 28 + next working day Tue, Sep 29</p>
+    </div>
+    <div class="meta-right">
+      <div class="refreshed" id="refreshedAt">refreshed just now</div>
+      <div>18 open items &middot; 8 clients</div>
+    </div>
+  </header>
+
+  <section class="critical">
+    <h2>Critical path &mdash; needs a decision today</h2>
+    <div class="critical-list">
+      <div class="critical-row">
+        <span class="client-tag">Rusty Taco</span>
+        <span class="ctext"><b>Greenville Bank Account</b> &ndash; deposits still not landing, unresolved</span>
+        <span class="cask">Ask: confirm resubmitted banking info or escalate with Shane / Chris</span>
+      </div>
+      <div class="critical-row">
+        <span class="client-tag">Mooyah Burgers</span>
+        <span class="ctext"><b>Printer Routing P1 issue</b> at -351 Hollyhock &ndash; needs an order ID to validate</span>
+        <span class="cask">Ask: get the order ID from the store to cross-check</span>
+      </div>
+      <div class="critical-row">
+        <span class="client-tag">Cicis Pizza</span>
+        <span class="ctext"><b>Cicis #15 go-live</b> anticipated Monday 9/28, no due date on the card</span>
+        <span class="cask">Ask: confirm on track and set the due date</span>
+      </div>
+      <div class="critical-row">
+        <span class="client-tag">Velarde Pizza</span>
+        <span class="ctext"><b>Debit cards not working</b> for payments, no reply since Sep 3</span>
+        <span class="cask">Ask: get specifics from Jonathan to scope a fix</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="switcher" role="tablist" aria-label="View">
+      <button type="button" id="btnBoard" role="tab" aria-selected="false">Board view</button>
+      <button type="button" id="btnTable" class="active" role="tab" aria-selected="true">Table view</button>
+    </div>
+    <div class="toolbar-actions">
+      <span id="copyStatus"></span>
+      <button type="button" class="copy-btn" id="copyBtn">Copy this view</button>
+    </div>
+  </div>
+
+  <div class="board" id="board" hidden></div>
+
+  <div class="table-scroll" id="tableView">
+    <table class="agenda">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Client</th>
+          <th>Task</th>
+          <th>Due</th>
+          <th>Update</th>
+          <th>Owner</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <footer class="note">Pulled fresh from the Daily Sync Up Trello board just now &middot; switch views above, then copy whichever you want to paste</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var columns = [
+    {
+      client: "Mooyah Burgers",
+      cards: [
+        {task:"Printer Routing P1 issue (Mooyah -351 Hollyhock)", tier:"high", due:"Mon 9/28", comment:"We need the order ID to cross check the orders. Personal Fries was the menu item to validate in Lab", owner:"hwengineer"},
+        {task:"Labor Stats Report", tier:"high", due:"Mon 9/28", comment:"Shane to cross validate it again", owner:"Shane"},
+        {task:"Plum KDS Enhancement (Prep Areas mapping)", tier:"high", due:"Mon 9/28", comment:"By mid of next week, we will have the release to validate the issue on our end", owner:"—"},
+        {task:"Prof. Inventory Roll Out", tier:"high", due:"Mon 9/28", comment:"Team is currently investigating the cases which need to be fixed", owner:"hwengineer / Chris Foresta / Mark Gonzalez"},
+        {task:"Fresh Desk 3820 – Kiosk customize button confusion", tier:"high", due:"Mon 9/28", comment:"Design discussion with Ajay scheduled for Monday 9/28", owner:"Ajay"}
+      ]
+    },
+    {
+      client: "Cicis Pizza",
+      cards: [
+        {task:"Transfer #19 (title says 10/05, due 9/28)", tier:"high", due:"Mon 9/28", comment:"India team configs done; follow up Monday with Chris on Plum Pay setup with store owner", owner:"Chris"},
+        {task:"Ticket TT13026/SD#29869 – Fuel Surcharge Popup (Store 433)", tier:"high", due:"Mon 9/28", comment:"It's fixed on the other stores.", owner:"Jonathan Zepnick"},
+        {task:"Cicis #15 go-live (anticipated 9/28)", tier:"high", due:"No due date", comment:"Onboarding complete for all apps; pricing, discounts, tax and historical sales upload still in progress", owner:"hwengineer", stale:"last update Aug 31"}
+      ]
+    },
+    {
+      client: "Bojangles",
+      cards: [
+        {task:"Globally controlled open cash amounts", tier:"high", due:"Fri 9/25", comment:"", owner:"—"}
+      ]
+    },
+    {
+      client: "DUNN Brothers",
+      cards: [
+        {task:"Fleet Card validation – Willmar Location", tier:"high", due:"Mon 9/28", comment:"Waiting for a guest with a fleet card to walk into the Willmar store to test", owner:"Mark Gonzalez"}
+      ]
+    },
+    {
+      client: "Famous Dave's",
+      cards: [
+        {task:"DSR Report – Theo deposit in Non Cash Tips values", tier:"high", due:"Mon 9/28", comment:"James to recheck it", owner:"James"}
+      ]
+    },
+    {
+      client: "Rusty Taco",
+      cards: [
+        {task:"Greenville Bank Account no deposits", tier:"high", due:"Mon 9/28", comment:"Not resolved; Shane resubmitted banking info, working with Chris", owner:"Shane / Chris"}
+      ]
+    },
+    {
+      client: "Velarde Pizza",
+      cards: [
+        {task:"Debit cards not working for payments", tier:"high", due:"No due date", comment:"Plum currently accepts credit cards only; more detail requested from Jonathan", owner:"Jonathan Zepnick", stale:"last update Sep 3"}
+      ]
+    },
+    {
+      client: "Internal",
+      cards: [
+        {task:"Till Online Payment Gateway – Payment Type Question", tier:"high", due:"Fri 9/25", comment:"Google Pay done; Apple Pay in QA", owner:"Jonathan Zepnick", stale:"last update Sep 11"},
+        {task:"Holiday Hours Overrides", tier:"high", due:"Mon 9/28", comment:"Issues found in business QA; Yash to update Monday", owner:"Yash"},
+        {task:"Fleet Cards (general rollout)", tier:"high", due:"Mon 9/28", comment:"One Mastercard running at a CICIs location; Mark checking Willmar (DBC) rollout", owner:"Mark"},
+        {task:"Price Management Design Revamp", tier:"high", due:"Fri 9/24", comment:"Design to be reviewed with US Team", owner:"—"},
+        {task:"KIOSK Design Revamp", tier:"high", due:"Fri 9/25", comment:"Design to be reviewed with US Team", owner:"—"}
+      ]
+    }
+  ];
+
+  var tierLabel = {high:"High priority", wait:"Waiting", wip:"In progress"};
+  var tierOrder = {high:0, wait:1, wip:2};
+
+  function initials(owner){
+    if(!owner || owner === "—") return "—";
+    var first = owner.split("/")[0].trim();
+    var parts = first.split(" ").filter(Boolean);
+    if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  function renderBoard(){
+    var board = document.getElementById("board");
+    board.innerHTML = "";
+    columns.forEach(function(col){
+      var colEl = document.createElement("section");
+      colEl.className = "column";
+
+      var head = document.createElement("div");
+      head.className = "column-head";
+      head.innerHTML = '<h3>' + col.client + '</h3><span class="column-count">' + col.cards.length + '</span>';
+      colEl.appendChild(head);
+
+      var body = document.createElement("div");
+      body.className = "column-body";
+
+      col.cards.forEach(function(c){
+        var card = document.createElement("article");
+        card.className = "card " + c.tier;
+        var commentHtml = c.comment
+          ? '<div class="card-comment">' + c.comment + '</div>'
+          : '<div class="card-comment empty">No comments yet</div>';
+        var staleHtml = c.stale ? '<span class="stale">' + c.stale + '</span>' : "";
+        card.innerHTML =
+          '<div class="card-top"><span class="pill ' + c.tier + '">' + tierLabel[c.tier] + '</span><span class="due-chip">' + c.due + '</span></div>' +
+          '<div class="card-task">' + c.task + '</div>' +
+          commentHtml +
+          '<div class="card-foot"><span class="owner-chip"><span class="avatar">' + initials(c.owner) + '</span>' + c.owner + '</span>' + staleHtml + '</div>';
+        body.appendChild(card);
+      });
+
+      colEl.appendChild(body);
+      board.appendChild(colEl);
+    });
+  }
+
+  // Flat, sorted list for the table view and for text export: high priority first, then waiting, then in progress, client order preserved within each tier
+  function flatRows(){
+    var rows = [];
+    columns.forEach(function(col){
+      col.cards.forEach(function(c){
+        rows.push({client: col.client, task:c.task, tier:c.tier, due:c.due, comment:c.comment, owner:c.owner, stale:c.stale});
+      });
+    });
+    rows.sort(function(a,b){ return tierOrder[a.tier] - tierOrder[b.tier]; });
+    return rows;
+  }
+
+  function renderTable(){
+    var tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+    flatRows().forEach(function(r){
+      var tr = document.createElement("tr");
+      var updateText = r.comment ? r.comment : "No comments yet";
+      if(r.stale){ updateText += " (last update " + r.stale.replace("last update ","") + ")"; }
+      tr.innerHTML =
+        '<td class="col-priority"><span class="pill ' + r.tier + '">' + tierLabel[r.tier] + '</span></td>' +
+        '<td class="col-client">' + r.client + '</td>' +
+        '<td class="col-task">' + r.task + '</td>' +
+        '<td class="col-due">' + r.due + '</td>' +
+        '<td class="col-update">' + updateText + '</td>' +
+        '<td class="col-owner">' + r.owner + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function buildBoardText(){
+    var lines = [];
+    lines.push("AGENDA – Tuesday, Sep 29 (items due tomorrow)");
+    lines.push("");
+    lines.push("OTHER MAJOR ITEMS");
+    lines.push("• [HIGH PRIORITY] Rusty Taco – Greenville Bank Account still not receiving deposits; confirm resubmitted banking info or escalate (Owner: Shane / Chris)");
+    lines.push("• [HIGH PRIORITY] Mooyah Burgers – Printer Routing P1 issue at -351 Hollyhock; needs an order ID to validate (Owner: hwengineer)");
+    lines.push("• [HIGH PRIORITY] Cicis Pizza – Cicis #15 go-live anticipated Monday 9/28, no due date on card; confirm on track and set due date (Owner: hwengineer) — last update Aug 31");
+    lines.push("• [HIGH PRIORITY] Velarde Pizza – Debit cards not working for payments; need specifics from Jonathan to scope fix (Owner: Jonathan Zepnick) — last update Sep 3");
+    lines.push("");
+    columns.forEach(function(col){
+      lines.push(col.client.toUpperCase());
+      col.cards.forEach(function(c){
+        var prefix = c.tier === "high" ? "[HIGH PRIORITY] " : "";
+        var commentText = c.comment ? c.comment : "no comments";
+        var staleTag = c.stale ? " — " + c.stale : "";
+        lines.push("• " + prefix + c.task + " [" + c.due + "] – " + commentText + " (Owner: " + c.owner + ")" + staleTag);
+      });
+      lines.push("");
+    });
+    return lines.join("\n").trim();
+  }
+
+  function buildTableTSV(){
+    var lines = [];
+    lines.push(["Priority","Client","Task","Due","Update","Owner"].join("\t"));
+    flatRows().forEach(function(r){
+      var updateText = r.comment ? r.comment : "No comments yet";
+      if(r.stale){ updateText += " (" + r.stale + ")"; }
+      lines.push([tierLabel[r.tier], r.client, r.task, r.due, updateText, r.owner].join("\t"));
+    });
+    return lines.join("\n");
+  }
+
+  function setRefreshedLabel(){
+    var el = document.getElementById("refreshedAt");
+    var now = new Date();
+    var opts = { hour: 'numeric', minute: '2-digit' };
+    try{
+      el.textContent = "refreshed today " + now.toLocaleTimeString(undefined, opts);
+    }catch(e){
+      el.textContent = "refreshed just now";
+    }
+  }
+
+  // View switching
+  var activeView = "board";
+  var boardEl = document.getElementById("board");
+  var tableEl = document.getElementById("tableView");
+  var btnBoard = document.getElementById("btnBoard");
+  var btnTable = document.getElementById("btnTable");
+  var copyBtn = document.getElementById("copyBtn");
+
+  function setView(view){
+    activeView = view;
+    boardEl.hidden = view !== "board";
+    tableEl.hidden = view !== "table";
+    btnBoard.classList.toggle("active", view === "board");
+    btnTable.classList.toggle("active", view === "table");
+    btnBoard.setAttribute("aria-selected", view === "board" ? "true" : "false");
+    btnTable.setAttribute("aria-selected", view === "table" ? "true" : "false");
+    copyBtn.textContent = view === "board" ? "Copy board summary" : "Copy table";
+  }
+
+  btnBoard.addEventListener("click", function(){ setView("board"); });
+  btnTable.addEventListener("click", function(){ setView("table"); });
+
+  copyBtn.addEventListener("click", function(){
+    var text = activeView === "board" ? buildBoardText() : buildTableTSV();
+    var statusEl = document.getElementById("copyStatus");
+    function showCopied(){
+      statusEl.textContent = "Copied";
+      setTimeout(function(){ statusEl.textContent = ""; }, 1800);
+    }
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try{ document.execCommand("copy"); showCopied(); }
+      catch(e){ statusEl.textContent = "Select & copy manually"; }
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(showCopied, fallback);
+    } else {
+      fallback();
+    }
+  });
+
+  renderBoard();
+  renderTable();
+  setRefreshedLabel();
+  setView("table");
+})();
+</script>
+
+</body></html>
